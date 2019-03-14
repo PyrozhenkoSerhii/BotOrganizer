@@ -5,5 +5,14 @@ module.exports = {
         tomorrow: 'Tomorrow',
         cancel: 'Cancel',
         new: 'Create a new task'
+    },
+    time: {
+        today: 'Today',
+        tomorrow: 'Tomorrow',
+        custom: 'Pick deadline'
+    },
+    approve: {
+        yes: 'Yes',
+        no: 'No'
     }
 }

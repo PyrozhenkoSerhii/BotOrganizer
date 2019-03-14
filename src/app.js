@@ -1,9 +1,12 @@
 import TelegramBot from 'node-telegram-bot-api'
 import mongoose from 'mongoose'
+import moment from 'moment'
 
 import { token, db, errorMessage } from './config'
 import { get, post, addTask, removeTask, editTask, getTask } from './utils/user'
 import startKeyboard from './templates/keyboards/start'
+import timeKeyboard from './templates/keyboards/time'
+import approveKeyboard from './templates/keyboards/approve'
 import * as callback from './utils/buttons'
 
 mongoose.connect(db.url).then(
@@ -53,8 +56,53 @@ bot.onText(/\/help/, async ({ from: sender, chat }) => {
 
 
 bot.onText(/\/create/, async ({ from: sender, chat }) => {
-    return bot.sendMessage(chat.id, errorMessage)
+    const task = {}
+
+    const { message_id: titleReply } = await bot.sendMessage(chat.id, 'How we will call it?', { reply_markup: { force_reply: true } })
+
+    bot.onReplyToMessage(chat.id, titleReply, async ({ text }) => {
+        task.title = text
+
+        const { message_id: contentReply } = await bot.sendMessage(chat.id, 'What do you need to do?', { reply_markup: { force_reply: true } })
+
+        bot.onReplyToMessage(chat.id, contentReply, async ({ text }) => {
+            task.content = text
+
+            bot.sendMessage(chat.id, 'When you need it to be done?', { reply_markup: { inline_keyboard: timeKeyboard } })
+
+            bot.on('callback_query', async ({ data }) => {
+                if (data === callback.time.today) {
+                    task.deadline = moment().endOf('day').fromNow()
+                }
+                if (data === callback.time.tomorrow) {
+                    task.deadline = moment().add(1, 'day').endOf('day')
+                }
+                if (data === callback.time.custom) {
+                    const { message_id: timeReply } = await bot.sendMessage(chat.id, 'Enter a time in format day:hour', { reply_markup: { force_reply: true } })
+
+                    bot.onReplyToMessage(chat.id, timeReply, async ({ text }) => {
+                        //TODO: time setup
+                        const time = text.split(':')
+                    })
+                }
+
+                bot.sendMessage(chat.id, `Your task looks like ${JSON.stringify(task)}. Is everything allright?`, { reply_markup: { inline_keyboard: approveKeyboard } })
+
+                bot.on('callback_query', async ({ data }) => {
+                    if (data === callback.approve.yes) {
+                        bot.sendMessage(chat.id, `Saved!`)
+                    }
+                    if (data === callback.approve.no) {
+                        bot.sendMessage(chat.id, `Rejected`)
+                    }
+                })
+            })
+        })
+    })
 })
+
+
+
 
 
 bot.onText(/\/task (.+)/, async ({ from: sender, chat }, [command, param]) => {

@@ -14,6 +14,7 @@
     "@babel/node": "^7.2.2",
     "@babel/preset-env": "^7.3.4",
     "lodash": "^4.17.11",
+    "moment": "^2.24.0",
     "mongoose": "^5.4.19",
     "mongoose-bcrypt": "^1.6.0",
     "mongoose-timestamp": "^0.6.0",

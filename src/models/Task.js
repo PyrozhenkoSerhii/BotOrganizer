@@ -16,7 +16,7 @@ exports.Task = new Schema({
         default: 'medium',
         enum: ['low', 'medium', 'high']
     },
-    point: {
+    deadline: {
         type: Date,
         required: [true, 'Date is required']
     },
