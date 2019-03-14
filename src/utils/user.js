@@ -77,3 +77,15 @@ exports.editTask = wrap(async (userId, task) => {
 })
 
 
+exports.getTask = wrap(async (userId, taskTitle) => {
+    const user = await User.findOne({ id: userId })
+
+    if (!user) {
+        console.log(`User not found`)
+        return null
+    }
+
+    return _find(user.tasks, { title: taskTitle })
+})
+
+

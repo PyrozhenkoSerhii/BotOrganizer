@@ -2,7 +2,7 @@ import TelegramBot from 'node-telegram-bot-api'
 import mongoose from 'mongoose'
 
 import { token, db, errorMessage } from './config'
-import { get, post, addTask, removeTask, editTask } from './utils/user'
+import { get, post, addTask, removeTask, editTask, getTask } from './utils/user'
 import startKeyboard from './templates/keyboards/start'
 import * as callback from './utils/buttons'
 
@@ -22,7 +22,7 @@ bot.onText(/\/start/, async ({ from: sender, chat }) => {
         if (!user) return bot.sendMessage(chat.id, errorMessage)
     }
 
-    return bot.sendMessage(chat.id, `What would you like to see?`, {
+    return bot.sendMessage(chat.id, `What would you like to do?`, {
         reply_markup: {
             keyboard: startKeyboard
         }
@@ -57,8 +57,10 @@ bot.onText(/\/create/, async ({ from: sender, chat }) => {
 })
 
 
-bot.onText(/\/task (.+)/, async ({ from: sender, chat }, [command, params]) => {
-    return bot.sendMessage(chat.id, errorMessage)
+bot.onText(/\/task (.+)/, async ({ from: sender, chat }, [command, param]) => {
+    const task = await getTask(sender.id, param)
+    if (!task || task === {}) return bot.sendMessage(chat.id, errorMessage)
+    return bot.sendMessage(chat.id, JSON.stringify(task, null, 4))
 })
 
 
