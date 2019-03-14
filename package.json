@@ -1,0 +1,25 @@
+{
+  "name": "telegrambot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon --exec babel-node src/app.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@babel/core": "^7.3.4",
+    "@babel/node": "^7.2.2",
+    "@babel/preset-env": "^7.3.4",
+    "lodash": "^4.17.11",
+    "mongoose": "^5.4.19",
+    "mongoose-bcrypt": "^1.6.0",
+    "mongoose-timestamp": "^0.6.0",
+    "node-telegram-bot-api": "^0.30.0",
+    "nodemon": "^1.18.10",
+    "request": "^2.88.0",
+    "request-promise-native": "^1.0.7"
+  }
+}
