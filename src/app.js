@@ -112,3 +112,10 @@ bot.on('message', async ({ chat, from: sender, text }) => {
 })
 
 
+import express from 'express'
+const uselessApp = express()
+const port = process.env.NODE_ENV || 3000
+
+uselessApp.listen(port, () => console.log(`useless server app is running at ${port}`))
+
+
