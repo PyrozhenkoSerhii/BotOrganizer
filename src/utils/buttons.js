@@ -1,10 +1,10 @@
 module.exports = {
     start: {
-        all: 'Show all tasks',
-        today: 'Today',
-        tomorrow: 'Tomorrow',
+        tasks: '/tasks',
+        new: '/create',
+        today: '/today',
+        tomorrow: '/tomorrow',
         cancel: 'Cancel',
-        new: 'Create a new task'
     },
     time: {
         today: ' During today',

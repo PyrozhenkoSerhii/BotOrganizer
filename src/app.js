@@ -3,7 +3,7 @@ import mongoose from 'mongoose'
 import moment from 'moment'
 
 import { token, db, errorMessage } from './config'
-import { get, post, addTask, removeTask, editTask, getTask } from './utils/user'
+import { get, post, addTask, removeTask, editTask, getTask, getByDay } from './utils/user'
 import startKeyboard from './templates/keyboards/start'
 import timeKeyboard from './templates/keyboards/time'
 import approveKeyboard from './templates/keyboards/approve'
@@ -33,38 +33,35 @@ bot.onText(/\/start/, async ({ from: sender, chat }) => {
 bot.onText(/\/tasks/, async ({ from: sender, chat }) => {
     const user = await get(sender.id)
     if (!user) return bot.sendMessage(chat.id, errorMessage)
-    return bot.sendMessage(chat.id, tasksTemplate(user.tasks), { parse_mode: 'HTML' })
+    return bot.sendMessage(chat.id, tasksTemplate(user.tasks) || `There is no tasks`, { parse_mode: 'HTML' })
 })
 
 
 bot.onText(/\/task (.+)/, async ({ from: sender, chat }, [command, param]) => {
     const task = await getTask(sender.id, param)
-    if (!task || task === {}) return bot.sendMessage(chat.id, errorMessage)
-    return bot.sendMessage(chat.id, taskTemplate(task), { parse_mode: 'HTML' })
+    return bot.sendMessage(chat.id, taskTemplate(task) || `Task wasn't found`, { parse_mode: 'HTML' })
 })
 
 
-
 bot.onText(/\/today/, async ({ from: sender, chat }) => {
-    return bot.sendMessage(chat.id, errorMessage)
+    const tasks = await getByDay(sender.id, 'today')
+    if (!tasks || tasks === {}) return bot.sendMessage(chat.id, `There is no tasks for today!`)
+    return bot.sendMessage(chat.id, tasksTemplate(tasks) || errorMessage, { parse_mode: 'HTML' })
 })
 
 
 bot.onText(/\/tomorrow/, async ({ from: sender, chat }) => {
-    return bot.sendMessage(chat.id, errorMessage)
+    const tasks = await getByDay(sender.id, 'tomorrow')
+    if (!tasks || tasks === {}) return bot.sendMessage(chat.id, `There is no tasks for tomorrow!`)
+    return bot.sendMessage(chat.id, tasksTemplate(tasks) || errorMessage, { parse_mode: 'HTML' })
 })
 
-
-bot.onText(/\/help/, async ({ from: sender, chat }) => {
-    const current = moment().format('DD HH')
-    return bot.sendMessage(chat.id, errorMessage)
-})
 
 let tasks = {}
 bot.onText(/\/create/, async ({ chat }) => {
     tasks[chat.id] = {}
 
-    const { message_id: titleReply } = await bot.sendMessage(chat.id, 'How we will call it?', { reply_markup: { force_reply: true } })
+    const { message_id: titleReply } = await bot.sendMessage(chat.id, 'How will you call it?', { reply_markup: { force_reply: true } })
 
     bot.onReplyToMessage(chat.id, titleReply, async ({ text }) => {
         tasks[chat.id].title = text
@@ -107,7 +104,6 @@ bot.on('callback_query', async (query) => {
         tasks[chat.id] = null
     }
 })
-
 
 
 bot.on('message', async ({ chat, from: sender, text }) => {

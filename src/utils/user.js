@@ -1,6 +1,7 @@
 import _last from 'lodash/last'
 import _find from 'lodash/find'
 import _filter from 'lodash/filter'
+import moment from 'moment'
 
 import User from '../models/User'
 import wrap from './asyncWrapper'
@@ -9,6 +10,7 @@ import wrap from './asyncWrapper'
 exports.get = wrap(async (id) => {
     return await User.findOne({ _id: id })
 })
+
 
 exports.post = wrap(async (from) => {
     const user = new User({
@@ -85,8 +87,32 @@ exports.getTask = wrap(async (userId, taskTitle) => {
         console.log(`User not found`)
         return null
     }
-    
+
     return user.tasks.filter(task => task.title.toLowerCase().trim() === taskTitle.toLowerCase().trim())[0]
 })
+
+
+exports.getByDay = wrap(async (userId, day) => {
+    const user = await User.findOne({ _id: userId })
+
+    if (!user) {
+        console.log(`User not found`)
+        return null
+    }
+
+    let date = new Date()
+    if(day === 'today') date = moment().endOf('day')
+    else date = moment().add(1, 'day').endOf('day')
+
+    return user.tasks.filter(task => {
+        if (!task.deadline) return false
+
+        const deadline = moment(task.deadline)
+        console.log(deadline.isSame(date))
+        return deadline.isSame(date)
+    })
+})
+
+
 
 
