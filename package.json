@@ -1,14 +1,16 @@
 {
   "name": "telegrambot",
   "version": "1.0.0",
-  "description": "",
+  "description": "bot for telegram",
   "main": "index.js",
   "scripts": {
     "dev": "nodemon --exec babel-node src/app.js"
   },
+  "engines": {
+    "node": "10.15.1"
+  },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Serhii Pyrozhenko",
   "dependencies": {
     "@babel/core": "^7.3.4",
     "@babel/node": "^7.2.2",
@@ -16,8 +18,6 @@
     "lodash": "^4.17.11",
     "moment": "^2.24.0",
     "mongoose": "^5.4.19",
-    "mongoose-bcrypt": "^1.6.0",
-    "mongoose-timestamp": "^0.6.0",
     "node-telegram-bot-api": "^0.30.0",
     "nodemon": "^1.18.10",
     "request": "^2.88.0",

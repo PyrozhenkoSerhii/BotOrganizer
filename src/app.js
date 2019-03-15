@@ -107,29 +107,8 @@ bot.on('callback_query', async (query) => {
 
 
 bot.on('message', async ({ chat, from: sender, text }) => {
-    switch (text) {
-        case callback.start.all: {
-            const user = await get(sender.id)
-            if (!user) return bot.sendMessage(chat.id, errorMessage)
-            return bot.sendMessage(chat.id, JSON.stringify(user.tasks, null, 4))
-        }
-        case callback.start.tomorrow: {
-            break
-        }
-        case callback.start.today: {
-            break
-        }
-        case callback.start.new: {
-            break
-        }
-        case callback.start.cancel: {
-            return bot.sendMessage(chat.id, `Canceled`, {
-                reply_markup: {
-                    remove_keyboard: true
-                }
-            })
-        }
-    }
+    if (text === callback.start.cancel)
+        return bot.sendMessage(chat.id, `Canceled`, { reply_markup: { remove_keyboard: true } })
 })
 
 
