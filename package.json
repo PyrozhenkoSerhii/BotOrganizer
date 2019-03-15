@@ -6,9 +6,6 @@
   "scripts": {
     "dev": "nodemon --exec babel-node src/app.js"
   },
-  "engines": {
-    "node": "10.15.1"
-  },
   "keywords": [],
   "author": "Serhii Pyrozhenko",
   "dependencies": {
