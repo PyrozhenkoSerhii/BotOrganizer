@@ -11,17 +11,7 @@ exports.Task = new Schema({
         required: [true, 'Content is required'],
         maxlength: [300, 'Max length of content is 300']
     },
-    severity: {
-        type: String,
-        default: 'medium',
-        enum: ['low', 'medium', 'high']
-    },
     deadline: {
         type: Date,
-        required: [true, 'Date is required']
     },
-    done: {
-        type: Boolean,
-        default: false
-    }
 })

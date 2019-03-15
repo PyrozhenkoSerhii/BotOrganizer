@@ -1,5 +1,6 @@
 import _last from 'lodash/last'
 import _find from 'lodash/find'
+import _filter from 'lodash/filter'
 
 import User from '../models/User'
 import wrap from './asyncWrapper'
@@ -29,7 +30,7 @@ exports.post = wrap(async (from) => {
 })
 
 exports.addTask = wrap(async (userId, task) => {
-    const user = await User.findOne({ id: userId })
+    const user = await User.findOne({ _id: userId })
 
     if (!user) {
         console.log(`User not found`)
@@ -49,7 +50,7 @@ exports.addTask = wrap(async (userId, task) => {
 
 
 exports.removeTask = wrap(async (userId, taskId) => {
-    const user = await User.findOne({ id: userId })
+    const user = await User.findOne({ _id: userId })
 
     if (!user) {
         console.log(`User not found`)
@@ -63,7 +64,7 @@ exports.removeTask = wrap(async (userId, taskId) => {
 
 
 exports.editTask = wrap(async (userId, task) => {
-    const user = await User.findOne({ id: userId })
+    const user = await User.findOne({ _id: userId })
 
     if (!user) {
         console.log(`User not found`)
@@ -78,14 +79,14 @@ exports.editTask = wrap(async (userId, task) => {
 
 
 exports.getTask = wrap(async (userId, taskTitle) => {
-    const user = await User.findOne({ id: userId })
+    const user = await User.findOne({ _id: userId })
 
     if (!user) {
         console.log(`User not found`)
         return null
     }
-
-    return _find(user.tasks, { title: taskTitle })
+    
+    return user.tasks.filter(task => task.title.toLowerCase().trim() === taskTitle.toLowerCase().trim())[0]
 })
 
 

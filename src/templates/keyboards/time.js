@@ -15,8 +15,8 @@ export default [
     ],
     [
         {
-            text: time.custom,
-            callback_data: time.custom
+            text: time.any,
+            callback_data: time.any
         }
     ]
 ]

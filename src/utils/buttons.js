@@ -7,9 +7,9 @@ module.exports = {
         new: 'Create a new task'
     },
     time: {
-        today: 'Today',
-        tomorrow: 'Tomorrow',
-        custom: 'Pick deadline'
+        today: ' During today',
+        tomorrow: 'During tomorrow',
+        any: 'Not specified'
     },
     approve: {
         yes: 'Yes',

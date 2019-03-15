@@ -8,6 +8,7 @@ import startKeyboard from './templates/keyboards/start'
 import timeKeyboard from './templates/keyboards/time'
 import approveKeyboard from './templates/keyboards/approve'
 import * as callback from './utils/buttons'
+import { taskTemplate, tasksTemplate } from './templates/html/task'
 
 mongoose.connect(db.url).then(
     () => console.log(`Bot was connected to ${db.name} database`),
@@ -25,19 +26,23 @@ bot.onText(/\/start/, async ({ from: sender, chat }) => {
         if (!user) return bot.sendMessage(chat.id, errorMessage)
     }
 
-    return bot.sendMessage(chat.id, `What would you like to do?`, {
-        reply_markup: {
-            keyboard: startKeyboard
-        }
-    })
+    return bot.sendMessage(chat.id, `What would you like to do?`, { reply_markup: { keyboard: startKeyboard } })
 })
 
 
 bot.onText(/\/tasks/, async ({ from: sender, chat }) => {
     const user = await get(sender.id)
     if (!user) return bot.sendMessage(chat.id, errorMessage)
-    return bot.sendMessage(chat.id, JSON.stringify(user.tasks, null, 4))
+    return bot.sendMessage(chat.id, tasksTemplate(user.tasks), { parse_mode: 'HTML' })
 })
+
+
+bot.onText(/\/task (.+)/, async ({ from: sender, chat }, [command, param]) => {
+    const task = await getTask(sender.id, param)
+    if (!task || task === {}) return bot.sendMessage(chat.id, errorMessage)
+    return bot.sendMessage(chat.id, taskTemplate(task), { parse_mode: 'HTML' })
+})
+
 
 
 bot.onText(/\/today/, async ({ from: sender, chat }) => {
@@ -51,65 +56,58 @@ bot.onText(/\/tomorrow/, async ({ from: sender, chat }) => {
 
 
 bot.onText(/\/help/, async ({ from: sender, chat }) => {
+    const current = moment().format('DD HH')
     return bot.sendMessage(chat.id, errorMessage)
 })
 
-
-bot.onText(/\/create/, async ({ from: sender, chat }) => {
-    const task = {}
+let tasks = {}
+bot.onText(/\/create/, async ({ chat }) => {
+    tasks[chat.id] = {}
 
     const { message_id: titleReply } = await bot.sendMessage(chat.id, 'How we will call it?', { reply_markup: { force_reply: true } })
 
     bot.onReplyToMessage(chat.id, titleReply, async ({ text }) => {
-        task.title = text
+        tasks[chat.id].title = text
 
         const { message_id: contentReply } = await bot.sendMessage(chat.id, 'What do you need to do?', { reply_markup: { force_reply: true } })
 
         bot.onReplyToMessage(chat.id, contentReply, async ({ text }) => {
-            task.content = text
+            tasks[chat.id].content = text
 
             bot.sendMessage(chat.id, 'When you need it to be done?', { reply_markup: { inline_keyboard: timeKeyboard } })
-
-            bot.on('callback_query', async ({ data }) => {
-                if (data === callback.time.today) {
-                    task.deadline = moment().endOf('day').fromNow()
-                }
-                if (data === callback.time.tomorrow) {
-                    task.deadline = moment().add(1, 'day').endOf('day')
-                }
-                if (data === callback.time.custom) {
-                    const { message_id: timeReply } = await bot.sendMessage(chat.id, 'Enter a time in format day:hour', { reply_markup: { force_reply: true } })
-
-                    bot.onReplyToMessage(chat.id, timeReply, async ({ text }) => {
-                        //TODO: time setup
-                        const time = text.split(':')
-                    })
-                }
-
-                bot.sendMessage(chat.id, `Your task looks like ${JSON.stringify(task)}. Is everything allright?`, { reply_markup: { inline_keyboard: approveKeyboard } })
-
-                bot.on('callback_query', async ({ data }) => {
-                    if (data === callback.approve.yes) {
-                        bot.sendMessage(chat.id, `Saved!`)
-                    }
-                    if (data === callback.approve.no) {
-                        bot.sendMessage(chat.id, `Rejected`)
-                    }
-                })
-            })
         })
     })
 })
 
 
+bot.on('callback_query', async (query) => {
+    const id = query.message.chat.id
+    let deadline = null
 
+    if (query.data === callback.time.today || query.data === callback.time.tomorrow || query.data === callback.time.any) {
+        if (query.data === callback.time.today) {
+            deadline = moment().endOf('day')
+        }
+        if (query.data === callback.time.tomorrow) {
+            deadline = moment().add(1, 'day').endOf('day')
+        }
 
+        tasks[id].deadline = deadline
 
-bot.onText(/\/task (.+)/, async ({ from: sender, chat }, [command, param]) => {
-    const task = await getTask(sender.id, param)
-    if (!task || task === {}) return bot.sendMessage(chat.id, errorMessage)
-    return bot.sendMessage(chat.id, JSON.stringify(task, null, 4))
+        bot.sendMessage(id, taskTemplate(tasks[id]), { parse_mode: 'HTML' })
+        bot.sendMessage(id, `Save following task?`, { reply_markup: { inline_keyboard: approveKeyboard } })
+    } else {
+        if (query.data === callback.approve.yes) {
+            addTask(id, tasks[id])
+            bot.sendMessage(id, `Saved!`)
+        }
+        if (query.data === callback.approve.no) {
+            bot.sendMessage(id, `Rejected`)
+        }
+        tasks[chat.id] = null
+    }
 })
+
 
 
 bot.on('message', async ({ chat, from: sender, text }) => {
