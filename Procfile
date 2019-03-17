@@ -1,1 +1,1 @@
-worker: nodemon --exec babel-node src/app.js
+web: npm run production

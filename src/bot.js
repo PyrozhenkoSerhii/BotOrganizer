@@ -1,22 +1,13 @@
 import TelegramBot from 'node-telegram-bot-api'
-import mongoose from 'mongoose'
 import moment from 'moment'
 
-import { token, db, errorMessage } from './config'
-import { get, post, addTask, removeTask, editTask, getTask, getByDay } from './utils/user'
+import { token, errorMessage } from './config'
+import { get, post, addTask, getTask, getByDay } from './utils/user'
 import startKeyboard from './templates/keyboards/start'
 import timeKeyboard from './templates/keyboards/time'
 import approveKeyboard from './templates/keyboards/approve'
 import * as callback from './utils/buttons'
 import { taskTemplate, tasksTemplate } from './templates/html/task'
-
-require('http').createServer().listen(process.env.PORT || 8000).on('request', (req, res) => res.end('request'));
-
-mongoose.connect(db.url).then(
-    () => console.log(`Bot was connected to ${db.name} database`),
-    (err) => console.log(`Error occured while connectiong to ${db.name} database: ${err}`)
-)
-mongoose.set('debug', (coll, method) => console.log(`[Mongoose] Path: /${coll}, method: ${method}`))
 
 const bot = new TelegramBot(token, { polling: true })
 
@@ -113,4 +104,7 @@ bot.on('message', async ({ chat, from: sender, text }) => {
         return bot.sendMessage(chat.id, `Canceled`, { reply_markup: { remove_keyboard: true } })
 })
 
+
+
+export default bot
 
