@@ -10,6 +10,8 @@ import approveKeyboard from './templates/keyboards/approve'
 import * as callback from './utils/buttons'
 import { taskTemplate, tasksTemplate } from './templates/html/task'
 
+require('http').createServer().listen(process.env.PORT || 8000).on('request', (req, res) => res.end('request'));
+
 mongoose.connect(db.url).then(
     () => console.log(`Bot was connected to ${db.name} database`),
     (err) => console.log(`Error occured while connectiong to ${db.name} database: ${err}`)
@@ -110,12 +112,5 @@ bot.on('message', async ({ chat, from: sender, text }) => {
     if (text === callback.start.cancel)
         return bot.sendMessage(chat.id, `Canceled`, { reply_markup: { remove_keyboard: true } })
 })
-
-
-import express from 'express'
-const uselessApp = express()
-const port = process.env.NODE_ENV || 3000
-
-uselessApp.listen(port, () => console.log(`useless server app is running at ${port}`))
 
 
