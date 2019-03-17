@@ -1,1 +1,1 @@
-web: nodemon --exec babel-node src/app.js
+worker: nodemon --exec babel-node src/app.js
